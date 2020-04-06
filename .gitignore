@@ -21,6 +21,10 @@ build/
 *.ipr
 out/
 
+### Exclude IntelliJ codeStyles and runConfigurations ###
+!/.idea/codeStyles
+!/.idea/runConfigurations
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

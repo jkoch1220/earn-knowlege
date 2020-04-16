@@ -1,0 +1,5 @@
+service_name: offer-details-service
+service_version: 0.0.1
+
+service_configuration:
+  ENVIRONMENT_NAME: "{{ environment_name }}"

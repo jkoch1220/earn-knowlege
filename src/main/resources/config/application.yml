@@ -1,0 +1,11 @@
+info:
+  app:
+    name: earn-knowlege
+    description: Project to earn some knowlege
+    version: 0.0.1
+
+spring:
+  main:
+    banner-mode: "off"
+  resources:
+    static-locations: classpath:/webapp/

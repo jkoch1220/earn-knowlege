@@ -1,6 +1,20 @@
 import com.moowork.gradle.node.NodeExtension
 import com.moowork.gradle.node.yarn.YarnTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.github.jengelman.gradle.plugins.shadow.ShadowApplicationPlugin
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.jfrog.bintray.gradle.BintrayPlugin
+import org.jetbrains.kotlin.gradle.dsl.Coroutines
+import org.gradle.api.publish.maven.MavenPom
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import com.jfrog.bintray.gradle.BintrayExtension
+
+val kotlinVersion = plugins.getPlugin(KotlinPluginWrapper::class.java).kotlinPluginVersion
+val kotlinxCoroutinesVersion = "0.22.2"
+
+kotlin {
+	experimental.coroutines = Coroutines.ENABLE
+}
 
 plugins {
 	id("org.springframework.boot") version "2.2.6.RELEASE"
@@ -9,31 +23,89 @@ plugins {
 	id("com.github.node-gradle.node") version "2.2.3"
 	id("com.github.ben-manes.versions") version "0.28.0"
 	id("org.owasp.dependencycheck") version "5.3.2"
+	id("com.jfrog.bintray") version "1.8.3"
+	id("com.github.johnrengelman.shadow") version "2.0.2"
 	kotlin("jvm") version "1.3.71"
 	kotlin("plugin.spring") version "1.3.71"
 	kotlin("kapt") version "1.3.71"
 	kotlin("plugin.jpa") version "1.3.71"
 	kotlin("plugin.noarg") version "1.3.71"
 	groovy
+	`maven-publish`
+	maven
 }
 
-version = "0.0.1"
-java.sourceCompatibility = JavaVersion.VERSION_11
+buildscript {
+	repositories {
+		jcenter()
+		mavenCentral()
+		}
+}
 
-// see: https://docs.gradle.org/current/userguide/declaring_dependencies.html#sec:defining-custom-configurations
-val developmentOnly: Configuration by configurations.creating
+project.group = "org.jfrog.example.gradle"
+project.version = "1.0"
 
-configurations {
-	runtimeClasspath {
-		extendsFrom(developmentOnly)
+allprojects{
+	repositories {
+		jcenter()
 	}
-	compileOnly {
-		extendsFrom(configurations.annotationProcessor.get())
+	apply(plugin = "com.jfrog.bintray")
+	apply(plugin = "maven")
+	apply(plugin = "maven-publish")
+	apply(plugin = "kotlin")
+}
+
+fun MavenPom.addDependencies() = withXml {
+	asNode().appendNode("dependencies").let { depNode ->
+		configurations.compile.allDependencies.forEach {
+			depNode.appendNode("dependency").apply {
+				appendNode("groupId", it.group)
+				appendNode("artifactId", it.name)
+				appendNode("version", it.version)
+			}
+		}
 	}
 }
 
-repositories {
-	mavenCentral()
+val artifactID = "earnkowlege"
+
+val shadowJar: ShadowJar by tasks
+shadowJar.apply {
+	baseName = artifactID
+	classifier = null
+}
+
+val publicationName = "MyPublication"
+publishing {
+	publications {
+		create<MavenPublication>("MyPublication") {
+			from(components["java"])
+			groupId = "com.buissnes.earnkowlege"
+			artifactId = rootProject.name
+			artifact(shadowJar)
+			version = "1.0-SNAPSHOT"
+
+		}
+	}
+}
+
+fun findProperty(s: String) = project.findProperty(s) as String?
+bintray {
+	user = "jkoch"
+	key = "eb4214c79fe5a5eff0cc60b4a7a70bc1c68803e0"
+	publish = true
+	setPublications(publicationName)
+	pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
+		repo = "generic"
+		name = "earn-knowledge"
+		userOrg = "tarent"
+		websiteUrl = "https://gitlab.com/Y-/earn-knowlege"
+		vcsUrl = "https://gitlab.com/Y-/earn-knowlege.git"
+		description = "TEST"
+
+		setLabels("kotlin")
+		desc = description
+	})
 }
 
 dependencyManagement {
@@ -59,8 +131,6 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-	// --- Testing ---
-
 	// Core
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -71,7 +141,9 @@ dependencies {
 	// Spock testing
 	testImplementation("org.spockframework:spock-core")
 	testImplementation("org.spockframework:spock-spring")
+
 }
+
 
 tasks.withType<Test> {
 	useJUnit()
@@ -155,3 +227,18 @@ configure<SourceSetContainer> {
 		output.dir(mapOf("builtBy" to "yarnBuild"), "${buildDir}/dist")
 	}
 }
+
+//tasks {
+//	withType(GradleBuild::class.java) {
+//		dependsOn(shadowJar)
+//	}
+//	withType<KotlinCompile> {
+//		kotlinOptions.jvmTarget = "1.8"
+//	}
+//	withType(Test::class.java) {
+//		testLogging.showStandardStreams = true
+//	}
+//	withType<GenerateMavenPom> {
+//		destination = file("$buildDir/libs/${shadowJar.name}.pom")
+//	}
+//}

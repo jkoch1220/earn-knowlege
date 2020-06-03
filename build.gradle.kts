@@ -1,9 +1,7 @@
 import com.moowork.gradle.node.NodeExtension
 import com.moowork.gradle.node.yarn.YarnTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import com.github.jengelman.gradle.plugins.shadow.ShadowApplicationPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.jfrog.bintray.gradle.BintrayPlugin
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.gradle.api.publish.maven.MavenPom
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper

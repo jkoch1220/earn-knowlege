@@ -210,6 +210,7 @@ val yarnBuild by tasks.registering(YarnTask::class) {
 	setWorkingDir(project.extensions.getByType(NodeExtension::class).nodeModulesDir)
 	inputs.files(
 			fileTree(mapOf(
+					aids
 					"dir" to "$rootDir/src/main/webapp/",
 					"include" to "*",
 					"exclude" to listOf("$rootDir/src/main/webapp/build/", "$rootDir/src/main/webapp/node_modules/")

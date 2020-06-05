@@ -15,6 +15,7 @@ kotlin {
 }
 
 plugins {
+	id ("com.github.kt3k.coveralls") version "2.10.1"
 	id("org.springframework.boot") version "2.2.6.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	id("com.github.hierynomus.license-report") version "0.15.0"
@@ -31,6 +32,7 @@ plugins {
 	groovy
 	`maven-publish`
 	maven
+	jacoco
 }
 
 buildscript {
@@ -48,6 +50,8 @@ allprojects{
 		jcenter()
 	}
 	apply(plugin = "com.jfrog.bintray")
+	apply(plugin = "jacoco")
+	apply(plugin = "com.github.kt3k.coveralls")
 	apply(plugin = "maven")
 	apply(plugin = "maven-publish")
 	apply(plugin = "kotlin")
@@ -63,6 +67,46 @@ fun MavenPom.addDependencies() = withXml {
 			}
 		}
 	}
+}
+
+// setting for coveralls
+val jacocoTestReport: JacocoReport by tasks
+jacocoTestReport.reports {
+	html.isEnabled = true // human readable
+	xml.isEnabled = true // required by coveralls
+}
+
+val jacocoRootReport by tasks.creating(JacocoReport::class) {
+	description = "Generates an aggregate report from all subprojects"
+
+	val sourceDirectoriesPaths = ArrayList<Any>()
+	val classDirectoriesPaths = ArrayList<Any>()
+	val executionDataPaths = ArrayList<Any>()
+
+	for (project in subprojects) {
+		dependsOn(project.tasks.test)
+		sourceDirectoriesPaths.add(project.sourceSets.main.get().allSource.srcDirs)
+		classDirectoriesPaths.add(project.sourceSets.main.get().output)
+		executionDataPaths.add(project.tasks.jacocoTestReport.get().executionData)
+	}
+	val sourceDirectories = files(*sourceDirectoriesPaths.toArray())
+	val classDirectories = files(*classDirectoriesPaths.toArray())
+	val executionData = files(*executionDataPaths.toArray())
+
+	reports {
+		html.isEnabled = true // human readable
+		xml.isEnabled = true // required by coveralls
+	}
+}
+
+coveralls {
+
+	val sourceDirectoriesPaths = ArrayList<Set<File>>()
+	for (project in subprojects) {
+		sourceDirectoriesPaths.add(project.sourceSets.main.get().allSource.srcDirs)
+	}
+	sourceDirs = sourceDirectoriesPaths.flatMap { files -> files.map { it.absolutePath } }
+	jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
 val artifactID = "earnkowlege"
@@ -123,6 +167,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+	//Coveralls
+	implementation("org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.2")
 
 	// Kotlin
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

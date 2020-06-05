@@ -1,7 +1,10 @@
 language: java
 
 after_success:
-  - ./gradlew cobertura coveralls
+  - ./gradlew jacocoRootReport coveralls
+
+script:
+  - ./gradlew clean build
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

@@ -219,10 +219,9 @@ into("$buildDir/dist/webapp")
 // 'clean' task also cleans frontend build artifacts
 // ******
 
-//tasks.clean {
-//	delete("$rootDir/src/main/webapp/build")
-//	println("TESTING______________________")
-//}
+tasks.clean {
+	delete("$rootDir/src/main/webapp/build")
+}
 
 // ******
 // 'build' task also builds frontend

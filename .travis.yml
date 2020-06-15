@@ -14,7 +14,7 @@ after_success:
 
 script:
   - export AWS_REGION=travis-test
-  - ./gradlew clean integrationTest build -i --stacktrace
+  - ./gradlew clean  build -i --stacktrace
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

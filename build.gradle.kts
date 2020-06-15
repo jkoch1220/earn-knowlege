@@ -76,36 +76,7 @@ jacocoTestReport.reports {
 	xml.isEnabled = true // required by coveralls
 }
 
-val jacocoRootReport by tasks.creating(JacocoReport::class) {
-	description = "Generates an aggregate report from all subprojects"
-
-	val sourceDirectoriesPaths = ArrayList<Any>()
-	val classDirectoriesPaths = ArrayList<Any>()
-	val executionDataPaths = ArrayList<Any>()
-
-	for (project in subprojects) {
-		dependsOn(project.tasks.test)
-		sourceDirectoriesPaths.add(project.sourceSets.main.get().allSource.srcDirs)
-		classDirectoriesPaths.add(project.sourceSets.main.get().output)
-		executionDataPaths.add(project.tasks.jacocoTestReport.get().executionData)
-	}
-	val sourceDirectories = files(*sourceDirectoriesPaths.toArray())
-	val classDirectories = files(*classDirectoriesPaths.toArray())
-	val executionData = files(*executionDataPaths.toArray())
-
-	reports {
-		html.isEnabled = true // human readable
-		xml.isEnabled = true // required by coveralls
-	}
-}
-
 coveralls {
-
-	val sourceDirectoriesPaths = ArrayList<Set<File>>()
-	for (project in subprojects) {
-		sourceDirectoriesPaths.add(project.sourceSets.main.get().allSource.srcDirs)
-	}
-	sourceDirs = sourceDirectoriesPaths.flatMap { files -> files.map { it.absolutePath } }
 	jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 

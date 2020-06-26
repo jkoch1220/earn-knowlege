@@ -15,7 +15,7 @@ kotlin {
 }
 
 plugins {
-	id ("com.github.kt3k.coveralls") version "2.10.1"
+	id ("com.github.kt3k.coveralls") version "2.8.4"
 	id("org.springframework.boot") version "2.2.6.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	id("com.github.hierynomus.license-report") version "0.15.0"
@@ -34,6 +34,7 @@ plugins {
 	maven
 	jacoco
 }
+
 
 buildscript {
 	repositories {
@@ -76,36 +77,7 @@ jacocoTestReport.reports {
 	xml.isEnabled = true // required by coveralls
 }
 
-val jacocoRootReport by tasks.creating(JacocoReport::class) {
-	description = "Generates an aggregate report from all subprojects"
-
-	val sourceDirectoriesPaths = ArrayList<Any>()
-	val classDirectoriesPaths = ArrayList<Any>()
-	val executionDataPaths = ArrayList<Any>()
-
-	for (project in subprojects) {
-		dependsOn(project.tasks.test)
-		sourceDirectoriesPaths.add(project.sourceSets.main.get().allSource.srcDirs)
-		classDirectoriesPaths.add(project.sourceSets.main.get().output)
-		executionDataPaths.add(project.tasks.jacocoTestReport.get().executionData)
-	}
-	val sourceDirectories = files(*sourceDirectoriesPaths.toArray())
-	val classDirectories = files(*classDirectoriesPaths.toArray())
-	val executionData = files(*executionDataPaths.toArray())
-
-	reports {
-		html.isEnabled = true // human readable
-		xml.isEnabled = true // required by coveralls
-	}
-}
-
 coveralls {
-
-	val sourceDirectoriesPaths = ArrayList<Set<File>>()
-	for (project in subprojects) {
-		sourceDirectoriesPaths.add(project.sourceSets.main.get().allSource.srcDirs)
-	}
-	sourceDirs = sourceDirectoriesPaths.flatMap { files -> files.map { it.absolutePath } }
 	jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
@@ -219,10 +191,9 @@ into("$buildDir/dist/webapp")
 // 'clean' task also cleans frontend build artifacts
 // ******
 
-//tasks.clean {
-//	delete("$rootDir/src/main/webapp/build")
-//	println("TESTING______________________")
-//}
+tasks.clean {
+	delete("$rootDir/src/main/webapp/build")
+}
 
 // ******
 // 'build' task also builds frontend

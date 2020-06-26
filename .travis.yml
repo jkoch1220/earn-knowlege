@@ -1,7 +1,24 @@
-language: java
+language: kotlin
+
+env:
+  global:
+    - COVERALLS_REPO_TOKEN=mv7fhOhseuOlMwgkXkh5b8zbOkfK1miHp
+    - CI_NAME=travis-pro
+
+jdk:
+  - openjdk14
+
+sudo: required
+
+before_install:
+  - chmod +x gradlew
+  - chmod +x gradle/wrapper/gradle-wrapper.jar
 
 after_success:
-  - ./gradlew cobertura coveralls
+  - ./gradlew jacocoTestReport coveralls
+
+script:
+  - ./gradlew clean build -i --stacktrace
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -10,3 +27,5 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
+

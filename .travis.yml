@@ -1,4 +1,9 @@
-language: java
+language: kotlin
+
+env:
+  global:
+    - COVERALLS_REPO_TOKEN=mv7fhOhseuOlMwgkXkh5b8zbOkfK1miHp
+    - CI_NAME=travis-pro
 
 jdk:
   - openjdk14
@@ -13,7 +18,6 @@ after_success:
   - ./gradlew jacocoTestReport coveralls
 
 script:
-  - export AWS_REGION=travis-test
   - ./gradlew clean build -i --stacktrace
 
 before_cache:
@@ -23,4 +27,5 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
 

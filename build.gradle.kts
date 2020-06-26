@@ -15,7 +15,7 @@ kotlin {
 }
 
 plugins {
-	id ("com.github.kt3k.coveralls") version "2.10.1"
+	id ("com.github.kt3k.coveralls") version "2.8.4"
 	id("org.springframework.boot") version "2.2.6.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	id("com.github.hierynomus.license-report") version "0.15.0"
@@ -34,6 +34,7 @@ plugins {
 	maven
 	jacoco
 }
+
 
 buildscript {
 	repositories {
